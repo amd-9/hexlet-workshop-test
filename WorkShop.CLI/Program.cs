@@ -12,25 +12,22 @@ namespace WorkShop.CLI
         {
             CommandLineApplication commandLineApplication = new CommandLineApplication(throwOnUnexpectedArg: false);
 
-            CommandArgument symbol = null;
-
-            commandLineApplication.Command("symbol",
-                (target) => symbol = target.Argument(
-                  "symbol",
-                  "Enter stock symbol.",
-                  multipleValues: false));
+            CommandOption symbol = commandLineApplication.Option(
+                  "-s |--symbol <symbol>",
+                  "Symbol to get stock data",
+                  CommandOptionType.SingleValue);
 
             commandLineApplication.HelpOption("-? | -h | --help");
 
             commandLineApplication.OnExecute(() =>
             {
-                Console.WriteLine("value is: {0}",symbol.Value);
+                Console.WriteLine("value is: {0}",symbol.Value());
 
-                if (!string.IsNullOrEmpty(symbol.Value))
+                if (!string.IsNullOrEmpty(symbol.Value()))
                 {                    
                     var tradingProvider = new IEXTradingProvider();
                     var service = new TradingDataService(tradingProvider);
-                    var result = Task.Run(() => service.GetTradingDataFor(symbol.Value)).Result;
+                    var result = Task.Run(() => service.GetTradingDataFor(symbol.Value())).Result;
 
                     Console.WriteLine(result[0].date);
                 }
